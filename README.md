@@ -8,5 +8,5 @@ U.S. Bikeshare Data
 Analyse bikeshare data in three major U.S. cities - Chicago, New York, and Washington.
 
 ### Files used
-app.py
-bikeshare.py
+app.py - Flask Web App providing REST APIs for accessing the data.
+bikeshare.py - Provides core functions e.g. sanitizing input, loading and analyzing data etc.

@@ -28,3 +28,13 @@ If "address already in use" error is thrown, kill the application:
 ```shell
 fuser -k 5000/tcp
 ```
+
+API examples:
+```shell
+curl -i -H "Content-Type: application/json" -X POST http://localhost:5000/get/time/stats -d '{"city":"chicago", "month":"all", "day": "all"}'
+curl -i -H "Content-Type: application/json" -X POST http://localhost:5000/get/station/stats -d '{"city":"chicago", "month":"all", "day": "all"}'
+curl -i -H "Content-Type: application/json" -X POST http://localhost:5000/get/trip/duration/stats -d '{"city":"chicago", "month":"all", "day": "all"}'
+curl -i -H "Content-Type: application/json" -X POST http://localhost:5000/get/user/stats -d '{"city":"chicago", "month":"all", "day": "all"}'
+curl -i -H "Content-Type: application/json" -X POST http://localhost:5000/get/raw/data -d '{"city":"chicago", "month":"all", "day": "all", "start_index":10}'
+
+```

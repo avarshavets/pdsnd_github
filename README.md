@@ -12,12 +12,13 @@ app.py - Flask Web App providing REST APIs for accessing the data.
 bikeshare.py - Provides core functions e.g. sanitizing input, loading and analyzing data etc.
 
 ### Project launch instruction
-To run the web server in dev mode(provided flask is installed)
+Use the command below to run the web server (provided flask is installed)
 ```shell
 export FLASK_APP=/home/workspace/app.py &&
 export FLASK_ENV=development &&
-flask run
+python -m flask run
 ```
+Note: the command works for Udacity workspace. When running in local environment, please define FLASK_APP as the actual location of app.py file in this project.
 
 If Flask is not installed
 ```shell

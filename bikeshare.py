@@ -49,97 +49,98 @@ def load_data(city, month, day):
     Returns:
         df - Pandas DataFrame containing city data filtered by month and day
     """
+    df = pd.read_csv(_CITY_DATA[city])
+    
+    # convert the Start Time column to datetime
+    df['Start Time'] = pd.to_datetime(df['Start Time'])
+    df['End Time'] = pd.to_datetime(df['End Time'])
+    df['month'] = df['Start Time'].dt.month
+    df['day_of_week'] = df['Start Time'].dt.day_name()
 
+    # filter by month if applicable
+    if month != 'all':
+        month = _VALID_MONTH.index(month)
+        df = df[df['month'] == month]
+
+    # filter by day of week if applicable
+    if day != 'all':
+        df = df[df['day_of_week'] == day.title()]
 
     return df
 
-
 def time_stats(df):
-    """Displays statistics on the most frequent times of travel."""
+    """Returns statistics on the most frequent times of travel."""
 
-    print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
-
-    # TO DO: display the most common month
-
-
-    # TO DO: display the most common day of week
-
-
-    # TO DO: display the most common start hour
-
-
-    print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
+    response = {}
+    
+    response['most_common_month'] = _VALID_MONTH[df['month'].mode()[0]].title()
+    response['most_common_day_of_week'] = df['day_of_week'].mode()[0]
+    response['most_common_start_hour'] = str(df['Start Time'].dt.hour.mode()[0])  
+    response['query_time_in_seconds'] = time.time() - start_time
+    
+    return response
 
 
 def station_stats(df):
-    """Displays statistics on the most popular stations and trip."""
+    """Returns statistics on the most popular stations and trip."""
 
-    print('\nCalculating The Most Popular Stations and Trip...\n')
     start_time = time.time()
-
-    # TO DO: display most commonly used start station
-
-
-    # TO DO: display most commonly used end station
-
-
-    # TO DO: display most frequent combination of start station and end station trip
-
-
-    print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
-
+    response = {}
+    response['most_common_start_station'] = df['Start Station'].mode()[0]
+    response['most_common_end_station'] = df['End Station'].mode()[0]
+    response['most_common_start_end_stations']=(df['Start Station'] + ' -> ' + df['End Station']).mode()[0]
+    response['query_time_in_seconds'] = time.time() - start_time
+    return response
 
 def trip_duration_stats(df):
-    """Displays statistics on the total and average trip duration."""
-
-    print('\nCalculating Trip Duration...\n')
+    """Returns statistics on the total and average trip duration."""
     start_time = time.time()
+    response = {}
+    df_duration = df['End Time'] - df['Start Time']
+    response['total_travel_time'] = str(df_duration.sum())
+    response['mean_travel_time'] =  str(df_duration.mean())
 
-    # TO DO: display total travel time
-
-
-    # TO DO: display mean travel time
-
-
-    print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
+    response['query_time_in_seconds'] = time.time() - start_time
+    return response
 
 
 def user_stats(df):
-    """Displays statistics on bikeshare users."""
-
-    print('\nCalculating User Stats...\n')
+    """Returns statistics on bikeshare users."""
     start_time = time.time()
+    response = {}
 
-    # TO DO: Display counts of user types
+    response['counts_by_user_type'] = df['User Type'].value_counts().to_json()
+    
+    if 'Gender' in df.columns:
+        response['counts_by_gender'] = df['Gender'].value_counts().to_json()
 
+    if 'Birth Year' in df.columns:
+        response['birth_year'] = {
+            'earliest': int(df['Birth Year'].min()),
+            'most_rescent': int(df['Birth Year'].max()),
+            'most_common': int(df['Birth Year'].mode()[0])
+        }
 
-    # TO DO: Display counts of gender
-
-
-    # TO DO: Display earliest, most recent, and most common year of birth
-
-
-    print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
+    response['query_time_in_seconds'] = time.time() - start_time
+    return response
 
 
 def main():
-    while True:
-        city, month, day = get_filters()
-        df = load_data(city, month, day)
-
-        time_stats(df)
-        station_stats(df)
-        trip_duration_stats(df)
-        user_stats(df)
-
-        restart = input('\nWould you like to restart? Enter yes or no.\n')
-        if restart.lower() != 'yes':
-            break
+    """Prints all statistics with fixed input, for debug only."""
+    json_request = {
+        'city': 'new york city',
+        'month': 'all',
+        'day': 'all'
+    }
+    
+    city, month, day = parse_json_request(json_request)
+    df = load_data(city, month, day)
+    
+    print(time_stats(df))
+    print(station_stats(df))
+    print(trip_duration_stats(df))
+    print(user_stats(df))
 
 
 if __name__ == "__main__":

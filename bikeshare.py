@@ -2,31 +2,40 @@ import time
 import pandas as pd
 import numpy as np
 
-CITY_DATA = { 'chicago': 'chicago.csv',
+_CITY_DATA = { 'chicago': 'chicago.csv',
               'new york city': 'new_york_city.csv',
               'washington': 'washington.csv' }
 
-def get_filters():
+_VALID_CITY = frozenset(_CITY_DATA.keys())
+_VALID_MONTH = ('all', 'january', 'february', 'march', 'april', 'may', 'june')
+_VALID_DAY_OF_WEEK = ('all', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
+
+def parse_json_request(json_request):
     """
-    Asks user to specify a city, month, and day to analyze.
+    Parses and validates json request. The request should include of city, month, and day.
 
     Returns:
-        (str) city - name of the city to analyze
-        (str) month - name of the month to filter by, or "all" to apply no month filter
-        (str) day - name of the day of week to filter by, or "all" to apply no day filter
-    """
-    print('Hello! Let\'s explore some US bikeshare data!')
-    # TO DO: get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
+        (str) city - name of the city to analyze, required.
+        (str) month - name of the month to filter by, or "all" to apply no month filter, required.
+        (str) day - name of the day of week to filter by, or "all" to apply no day filter, required.
 
+    Raises:
+      ValueError one of the input is invalid.
+    """    
+    if not json_request:
+        raise ValueError('Expect json input, but got empty.')
+    
+    def _sanitize_string(field_name, valid_set):
+        if not field_name in json_request:
+            raise ValueError('Expect <%s> to be not empty, but got empty.' % (field_name)) 
+        
+        string_value = json_request[field_name].strip().lower()
+        if not string_value in valid_set:
+            raise ValueError('Expect <%s> to be one of %s, but got "%s".' % (field_name, tuple(valid_set), json_request[field_name]))
 
-    # TO DO: get user input for month (all, january, february, ... , june)
-
-
-    # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
-
-
-    print('-'*40)
-    return city, month, day
+        return string_value
+    
+    return _sanitize_string('city', _VALID_CITY), _sanitize_string('month', _VALID_MONTH), _sanitize_string('day', _VALID_DAY_OF_WEEK)
 
 
 def load_data(city, month, day):

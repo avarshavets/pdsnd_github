@@ -12,7 +12,7 @@ _VALID_DAY_OF_WEEK = ('all', 'monday', 'tuesday', 'wednesday', 'thursday', 'frid
 
 def parse_json_request(json_request):
     """
-    Parses and validates json request. The request should include of city, month, and day.
+    Parses and validates json request, which is a dictionary with keys city, month, and day.
 
     Returns:
         (str) city - name of the city to analyze, required.
@@ -36,7 +36,6 @@ def parse_json_request(json_request):
         return string_value
     
     return _sanitize_string('city', _VALID_CITY), _sanitize_string('month', _VALID_MONTH), _sanitize_string('day', _VALID_DAY_OF_WEEK)
-
 
 def load_data(city, month, day):
     """
@@ -126,6 +125,20 @@ def user_stats(df):
     return response
 
 
+def read_raw_data(df, start_index=0):
+    """Returns 5 rows of raw data specified by start_index."""
+    start_index = int(start_index)
+    if(start_index<0 or start_index>=df.shape[0]):
+        raise ValueError('Expect start_index to be between [0, %s), but got %s.' % (df.shape[0], start_index)) 
+ 
+    end_index = min(start_index+5, df.shape[0])
+    
+    return {
+        'start_index': start_index,
+        'end_index': end_index,
+        'raw_data': df[start_index:end_index].to_json()
+    }
+
 def main():
     """Prints all statistics with fixed input, for debug only."""
     json_request = {
@@ -141,7 +154,7 @@ def main():
     print(station_stats(df))
     print(trip_duration_stats(df))
     print(user_stats(df))
-
+    print(read_raw_data(df, 0))
 
 if __name__ == "__main__":
 	main()
